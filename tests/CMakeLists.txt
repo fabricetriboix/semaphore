@@ -1,0 +1,6 @@
+enable_testing()
+config_compiler_and_linker()
+add_test(NAME test-semaphore COMMAND test-semaphore)
+add_executable(test-semaphore test-semaphore.cpp)
+target_include_directories(test-semaphore PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(test-semaphore gtest)
