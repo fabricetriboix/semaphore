@@ -4,22 +4,66 @@
 
 TEST(Semaphore, ShouldUnlockThread)
 {
-    semaphore sem;
+    semaphore_t sem;
 
-    bool unlocked = false;
+    bool taken = false;
     std::thread thread(
-            [&sem, &unlocked] ()
+            [&sem, &taken] ()
             {
                 sem.take();
-                unlocked = true;
+                taken = true;
             });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    ASSERT_FALSE(unlocked);
+    ASSERT_FALSE(taken);
     sem.post();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    ASSERT_TRUE(unlocked);
+    ASSERT_TRUE(taken);
+    thread.join();
+}
+
+TEST(Semaphore, TakeWithTimeoutShouldSucceed)
+{
+    semaphore_t sem;
+
+    bool taken = false;
+    std::thread thread(
+            [&sem, &taken] ()
+            {
+                if (sem.take(std::chrono::milliseconds(20))) {
+                    taken = true;
+                }
+            });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ASSERT_FALSE(taken);
+    sem.post();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ASSERT_TRUE(taken);
+    thread.join();
+}
+
+TEST(Semaphore, TakeWithTimeoutShouldTimeout)
+{
+    semaphore_t sem;
+
+    bool taken = false;
+    std::thread thread(
+            [&sem, &taken] ()
+            {
+                if (sem.take(std::chrono::milliseconds(10))) {
+                    taken = true;
+                }
+            });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(15));
+    ASSERT_FALSE(taken);
+    sem.post();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ASSERT_FALSE(taken);
     thread.join();
 }
 

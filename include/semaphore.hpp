@@ -2,13 +2,14 @@
 
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
-class semaphore
+class semaphore_t
 {
 public:
-    semaphore() : count_(0) { }
-    explicit semaphore(int initial_count) : count_(initial_count) { }
-    ~semaphore() = default;
+    semaphore_t() : count_(0) { }
+    explicit semaphore_t(int initial_count) : count_(initial_count) { }
+    ~semaphore_t() = default;
 
     using lock_t = std::unique_lock<std::mutex>;
 
@@ -34,11 +35,24 @@ public:
         --count_;
     }
 
+    bool take(std::chrono::nanoseconds timeout)
+    {
+        auto end = std::chrono::high_resolution_clock::now() + timeout;
+        lock_t lock(mutex_);
+        while (count_ <= 0) {
+            if (cv_.wait_until(lock, end) == std::cv_status::timeout) {
+                return false;
+            }
+        }
+        --count_;
+        return true;
+    }
+
 private:
     std::mutex mutex_;
     std::condition_variable cv_;
     int count_;
 
-    semaphore(const semaphore&) = delete;
-    semaphore& operator=(const semaphore&) = delete;
+    semaphore_t(const semaphore_t&) = delete;
+    semaphore_t& operator=(const semaphore_t&) = delete;
 };
