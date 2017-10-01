@@ -4,7 +4,7 @@
 
 TEST(Semaphore, ShouldUnlockThread)
 {
-    semaphore_t sem;
+    ft::semaphore_t sem;
 
     bool taken = false;
     std::thread thread(
@@ -25,7 +25,7 @@ TEST(Semaphore, ShouldUnlockThread)
 
 TEST(Semaphore, TakeWithTimeoutShouldSucceed)
 {
-    semaphore_t sem;
+    ft::semaphore_t sem;
 
     bool taken = false;
     std::thread thread(
@@ -47,7 +47,7 @@ TEST(Semaphore, TakeWithTimeoutShouldSucceed)
 
 TEST(Semaphore, TakeWithTimeoutShouldTimeout)
 {
-    semaphore_t sem;
+    ft::semaphore_t sem;
 
     bool taken = false;
     std::thread thread(

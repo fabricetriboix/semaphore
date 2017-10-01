@@ -1,8 +1,13 @@
+/* Copyright Fabrice Triboix */
+
 #pragma once
 
+#include <safe_mutex.hpp>
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
+
+namespace ft {
 
 class semaphore_t
 {
@@ -11,7 +16,7 @@ public:
     explicit semaphore_t(int initial_count) : count_(initial_count) { }
     ~semaphore_t() = default;
 
-    using lock_t = std::unique_lock<std::mutex>;
+    using lock_t = std::unique_lock<safe_mutex<std::mutex>>;
 
     int count()
     {
@@ -49,10 +54,12 @@ public:
     }
 
 private:
-    std::mutex mutex_;
-    std::condition_variable cv_;
+    safe_mutex<std::mutex> mutex_;
+    std::condition_variable_any cv_;
     int count_;
 
     semaphore_t(const semaphore_t&) = delete;
     semaphore_t& operator=(const semaphore_t&) = delete;
 };
+
+} // namespace ft
