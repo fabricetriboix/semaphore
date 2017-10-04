@@ -11,12 +11,12 @@ namespace ft {
 
 class semaphore_t
 {
+    typedef std::unique_lock<safe_mutex<std::mutex>> lock_t;
+
 public:
     semaphore_t() : count_(0) { }
     explicit semaphore_t(int initial_count) : count_(initial_count) { }
     ~semaphore_t() = default;
-
-    using lock_t = std::unique_lock<safe_mutex<std::mutex>>;
 
     int count()
     {
